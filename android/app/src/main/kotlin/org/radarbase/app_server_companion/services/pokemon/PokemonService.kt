@@ -3,6 +3,7 @@ package org.radarbase.app_server_companion.services.pokemon
 import android.content.Context
 import me.sargunvohra.lib.pokekotlin.client.PokeApiClient
 import org.radarbase.app_server_companion.model.PokemonDetails
+import java.util.logging.Logger
 import kotlin.random.Random
 
 class PokemonService(private val pokeApiClient: PokeApiClient, c: Context) : PokemonApi {
@@ -12,7 +13,8 @@ class PokemonService(private val pokeApiClient: PokeApiClient, c: Context) : Pok
     private val storageService: PokemonStorageService = PokemonStorageService(c)
 
     init {
-        favouritesCount = this.storageService.getFavouritePokemons().size
+        favouritesCount = this.getAllFavourties().size
+        logger.info("Favourites Size: $favouritesCount")
     }
 
 
@@ -32,6 +34,7 @@ class PokemonService(private val pokeApiClient: PokeApiClient, c: Context) : Pok
             this.storageService.getPokemonFromStorage(id)
         } catch (exc: IllegalArgumentException) {
             val pokemon = pokeApiClient.getPokemon(id)
+            logger.info("Got Pokemon from API: $pokemon")
             val pokemonDetails = PokemonDetails(pokemon.id.toLong(), pokemon.name, "", pokemon.height,
                     pokemon.weight, pokemon.abilities.map { it.ability.name }, pokemon.species.name,
                     pokemon.types.map { it.type.name }, pokemon.moves.map { it.move.name }, false)
@@ -73,5 +76,6 @@ class PokemonService(private val pokeApiClient: PokeApiClient, c: Context) : Pok
     companion object {
         private const val NUMBER_OF_POKEMONS: Int = 10000
         private val randomGenerator: Random = Random(NUMBER_OF_POKEMONS)
+        private val logger = Logger.getLogger(PokemonService::class.java.name)
     }
 }

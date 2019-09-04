@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder
 
 open class DataStorageService(c: Context) : StorageService {
 
-    internal var cache = LinkedHashMap<String, Any>()
+    internal var cache = HashMap<String, Any>()
     private val preferences = c.getSharedPreferences("POKEMON", Context.MODE_PRIVATE)
     private val editor = preferences.edit()
 
@@ -20,7 +20,7 @@ open class DataStorageService(c: Context) : StorageService {
     }
 
     override fun <T> getAll(keys: List<String>, c: Class<T>): Map<String, T> {
-        val localMap: LinkedHashMap<String, T> = LinkedHashMap()
+        val localMap: HashMap<String, T> = HashMap()
         for (k in keys) {
             when {
                 cache.containsKey(k) -> localMap[k] = cache[k] as T

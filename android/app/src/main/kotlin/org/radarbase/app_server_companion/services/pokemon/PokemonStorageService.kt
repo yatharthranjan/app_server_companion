@@ -16,7 +16,7 @@ class PokemonStorageService(c: Context) : DataStorageService(c) {
 
     fun getFavouritePokemons(): List<PokemonDetails> {
         return this.cache.filter { it.key.contains(POKEMON_STORAGE_KEY_PREFIX) &&
-                (it.value as PokemonDetails).isFavourite }.values as List<PokemonDetails>
+                (it.value as PokemonDetails).isFavourite }.values.map { it as PokemonDetails }
     }
 
     companion object {
