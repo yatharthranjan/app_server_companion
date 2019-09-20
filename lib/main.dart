@@ -1,5 +1,11 @@
+import 'package:app_server_companion/favourites.dart';
+import 'package:app_server_companion/logging.dart';
 import 'package:app_server_companion/pokemon_details.dart';
+import 'package:app_server_companion/schedule.dart';
+import 'package:app_server_companion/server_status.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(MyApp());
 
@@ -45,6 +51,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  static const String _TAG = "MyHomePage";
+  TextStyle _buttonStyle = TextStyle(
+    color: Colors.blueAccent,
+  );
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -79,20 +90,90 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Container(
-                margin: EdgeInsets.all(10),
-                padding: EdgeInsets.all(10),
-                child: PokemonCardDetails()),
+            Expanded(
+                child: SingleChildScrollView(
+              child: Column(children: <Widget>[
+                Container(
+                    margin: EdgeInsets.all(5),
+                    padding: EdgeInsets.all(10),
+                    child: PokemonCardDetails()),
+                Container(
+                    margin: EdgeInsets.all(5),
+                    padding: EdgeInsets.all(10),
+                    child: ServerStatus())
+              ]),
+            )),
+            Row(
+              children: <Widget>[
+                CupertinoButton(
+                  child: Text(
+                    "REST",
+                    style: _buttonStyle,
+                  ),
+                  pressedOpacity: 0.2,
+                  onPressed: () {
+                    _navigateTo("REST");
+                  },
+                ),
+                CupertinoButton(
+                  child: Text(
+                    "XMPP",
+                    style: _buttonStyle,
+                  ),
+                  pressedOpacity: 0.2,
+                  onPressed: () {
+                    _navigateTo("XMPP");
+                  },
+                )
+              ],
+            )
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _add,
+        onPressed: () {
+          _navigateTo("FAVOURITES");
+        },
         tooltip: 'Increment',
-        child: Icon(Icons.add),
+        child: Icon(Icons.favorite_border),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
-  void _add() {}
+  void _navigateTo(String s) {
+    switch (s) {
+      case "REST":
+        Logging.log(_TAG, "REST called");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ScheduleNotifications(
+                    methodChannel: MethodChannel(
+                        ScheduleNotifications.restMethodChannelId),
+                  )),
+        );
+        break;
+      case "XMPP":
+        Logging.log(_TAG, "XMPP called");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ScheduleNotifications(
+                    methodChannel: MethodChannel(
+                        ScheduleNotifications.xmppMethodChannelId),
+                  )),
+        );
+        break;
+
+      case "FAVOURITES":
+        Logging.log(_TAG, "FAVOURITES called");
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => Favourites()));
+        break;
+
+      default:
+        Logging.log(
+            _TAG, "The specified page does not exist or is not mapped.");
+    }
+  }
 }
